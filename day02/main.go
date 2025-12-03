@@ -30,6 +30,24 @@ func (r *Range) findInvalidIds() []int {
 
 }
 
+func (r *Range) findInvalidIdsPart2() []int {
+	// TODO: Finish eventually
+	// An invalid Id is now
+	// if it's of some sequence of digits repeated at least twice
+	// Meaning the pattern can be of size 1 to len(n)/2 where n is the id
+	var invalidIds []int
+	for i := r.Start; i < r.End+1; i++ {
+		intStr := strconv.Itoa(i)
+		for j := 0; j < len(intStr)/2+1; j++ {
+
+		}
+
+	}
+
+	return invalidIds
+
+}
+
 func buildIntoRanges(byteArr []byte) ([]Range, error) {
 	// 44 = ,
 	// 45 = -
