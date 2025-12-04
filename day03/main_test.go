@@ -28,10 +28,10 @@ func TestFindMaxPower(t *testing.T) {
 	input2 := createIntSlice(234234234234278)
 	input3 := createIntSlice(818181911112111)
 
-	res0 := findMaxPower(input0)
-	res1 := findMaxPower(input1)
-	res2 := findMaxPower(input2)
-	res3 := findMaxPower(input3)
+	res0 := pickTwo(input0)
+	res1 := pickTwo(input1)
+	res2 := pickTwo(input2)
+	res3 := pickTwo(input3)
 
 	fmt.Println(res0)
 	fmt.Println(res1)
@@ -46,10 +46,10 @@ func TestFindMaxPowPartTwoRecursive(t *testing.T) {
 	input2 := createIntSlice(234234234234278)
 	input3 := createIntSlice(818181911112111)
 
-	res0 := findMaxPowerPartTwo(input0)
-	res1 := findMaxPowerPartTwo(input1)
-	res2 := findMaxPowerPartTwo(input2)
-	res3 := findMaxPowerPartTwo(input3)
+	res0 := pickTwelve(input0)
+	res1 := pickTwelve(input1)
+	res2 := pickTwelve(input2)
+	res3 := pickTwelve(input3)
 
 	fmt.Println(res0)
 	fmt.Println(res1)

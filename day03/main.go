@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	"math"
 )
 
 func createBanks(data []byte) [][]int {
@@ -27,7 +26,7 @@ func createBanks(data []byte) [][]int {
 
 }
 
-func findMaxPower(bank []int) int {
+func pickTwo(bank []int) int {
 	var maxPower int
 	var tensPlace int // greedily keep the biggest battery as you go along
 
@@ -44,7 +43,7 @@ func findMaxPower(bank []int) int {
 	return maxPower
 }
 
-func findMaxPowerPartTwo(bank []int) int {
+func pickTwelve(bank []int) int {
 
 	// maximum index you're able to search in order to get a 12 digit number
 	maxDigitIdx := make(map[int]int)
@@ -71,19 +70,13 @@ func findMaxPowerPartTwo(bank []int) int {
 
 	var maxPower int
 	for i, digit := range digits {
-		maxPower += digit * IntPow(10, len(digits)-i-1)
+		maxPower += digit * common.IntPow(10, len(digits)-i-1)
 	}
 	return maxPower
 
 }
 
-func IntPow(x int, pow int) int {
-
-	return int(math.Pow(float64(x), float64(pow)))
-
-}
-
-func findMaxPowerPartTwoRecursive(bank []int) int {
+func pickTwelveRecursive(bank []int) int {
 	// Too slow
 	var maxPower int
 
@@ -107,7 +100,7 @@ func findMaxPowerPartTwoRecursive(bank []int) int {
 		recurse(i+1, curr, digits)
 
 		// take
-		curr += (bank[i] * IntPow(10, digits-1))
+		curr += (bank[i] * common.IntPow(10, digits-1))
 		recurse(i+1, curr, digits-1)
 
 	}
@@ -117,22 +110,13 @@ func findMaxPowerPartTwoRecursive(bank []int) int {
 
 }
 
-func findTotalPower(banks [][]int) int {
+func findTotalPower(banks [][]int, findBankPowerStrategy func(bank []int) int) int {
 	var totalPower int
 	for _, bank := range banks {
-		totalPower += findMaxPower(bank)
+		totalPower += findBankPowerStrategy(bank)
 	}
 	return totalPower
 
-}
-
-func findTotalPowerPartTwo(banks [][]int) int {
-	var totalPower int
-	for _, bank := range banks {
-		totalPower += findMaxPowerPartTwo(bank)
-	}
-
-	return totalPower
 }
 
 func main() {
@@ -144,10 +128,10 @@ func main() {
 	}
 
 	banks := createBanks(data)
-	totalPower := findTotalPower(banks)
+	totalPower := findTotalPower(banks, pickTwo)
 	fmt.Println(totalPower)
 
-	totalPowerPartTwo := findTotalPowerPartTwo(banks)
+	totalPowerPartTwo := findTotalPower(banks, pickTwelve)
 	fmt.Println(totalPowerPartTwo)
 
 }
