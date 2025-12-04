@@ -49,18 +49,39 @@ func isValidRoll(x, y int, grid [][]byte) bool {
 func countValidRolls(grid [][]byte) int {
 	// @ = 64
 	var count int
-	var validRolls [][2]int
 	for y, row := range grid {
 		for x := range row {
 			if grid[y][x] == 64 && isValidRoll(x, y, grid) {
 				count++
-				validRolls = append(validRolls, [2]int{x, y})
 			}
 
 		}
 	}
 
 	return count
+}
+
+func countValidRollsPartTwo(grid [][]byte) int {
+	// @ = 64
+
+	var count int
+
+	var removed int = 1
+	for removed > 0 {
+		removed = 0
+		for y, row := range grid {
+			for x := range row {
+				if grid[y][x] == 64 && isValidRoll(x, y, grid) {
+					count++
+					removed++
+					grid[y][x] = 46
+				}
+			}
+		}
+	}
+
+	return count
+
 }
 
 func main() {
@@ -74,7 +95,9 @@ func main() {
 	grid := buildGrid(data)
 
 	ct := countValidRolls(grid)
-
 	fmt.Println(ct)
+
+	ct2 := countValidRollsPartTwo(grid)
+	fmt.Println(ct2)
 
 }
