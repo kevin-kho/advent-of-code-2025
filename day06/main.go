@@ -119,9 +119,49 @@ func sumIntSlice(slc []int) int {
 	return res
 }
 
+func calculateReverse(data []byte) {
+	// 42 == *
+	// 43 == +
+	// whitespace == 32
+
+	var longestRow int
+	rows := bytes.Split(data, []byte{10})
+	for _, row := range rows {
+		longestRow = max(longestRow, len(row))
+	}
+
+	var rowsNew [][]byte
+	for i := range rows {
+		r := make([]byte, longestRow)
+		copy(r, rows[i])
+		for j := len(rows[i]); j < longestRow; j++ {
+			r[j] = byte(32)
+		}
+		rowsNew = append(rowsNew, r)
+
+	}
+
+	for x := longestRow - 1; x >= 0; x-- {
+		var num int
+		for y := range rowsNew {
+			if y == len(rowsNew)-1 {
+				fmt.Printf("op: %v\n", rowsNew[y][x])
+			} else {
+				val := rowsNew[y][x]
+				if val != 32 {
+					num = num*10 + int(val)
+				}
+				fmt.Println(rowsNew[y][x])
+			}
+		}
+		fmt.Println("---")
+	}
+
+}
+
 func main() {
-	// filePath := "./inputExample.txt"
-	filePath := "./input.txt"
+	filePath := "./inputExample.txt"
+	// filePath := "./input.txt"
 
 	data, err := common.ReadInput(filePath)
 	if err != nil {
@@ -144,5 +184,7 @@ func main() {
 
 	res := sumIntSlice(colValues)
 	fmt.Println(res)
+
+	calculateReverse(data)
 
 }
