@@ -1,6 +1,7 @@
 package common
 
 import (
+	"bytes"
 	"math"
 	"os"
 )
@@ -15,6 +16,10 @@ func ReadInput(filePath string) ([]byte, error) {
 
 	return data, nil
 
+}
+
+func TrimNewLineSuffix(byteArr []byte) []byte {
+	return bytes.TrimSuffix(byteArr, []byte{10})
 }
 
 func IntPow(x int, pow int) int {
