@@ -113,13 +113,28 @@ func calculateColumns(values [][]int, ops []byte) ([]int, error) {
 
 func sumIntSlice(slc []int) int {
 	var res int
+	if len(slc) == 0 {
+		return res
+	}
 	for _, v := range slc {
 		res += v
 	}
 	return res
 }
 
-func calculateReverse(data []byte) {
+func productIntSlice(slc []int) int {
+	if len(slc) == 0 {
+		return 0
+	}
+	res := 1
+	for _, v := range slc {
+		res *= v
+	}
+
+	return res
+}
+
+func calculateReverse(data []byte) int {
 	// 42 == *
 	// 43 == +
 	// whitespace == 32
@@ -130,6 +145,7 @@ func calculateReverse(data []byte) {
 		longestRow = max(longestRow, len(row))
 	}
 
+	// Pad the rows to have the same length
 	var rowsNew [][]byte
 	for i := range rows {
 		r := make([]byte, longestRow)
@@ -141,27 +157,43 @@ func calculateReverse(data []byte) {
 
 	}
 
+	var colNums []int
+	var nums []int
 	for x := longestRow - 1; x >= 0; x-- {
 		var num int
 		for y := range rowsNew {
-			if y == len(rowsNew)-1 {
-				fmt.Printf("op: %v\n", rowsNew[y][x])
+			// Handle sum or product op
+			if y == len(rowsNew)-1 && num != 0 {
+				nums = append(nums, num)
+				switch rowsNew[y][x] {
+				case 42:
+					colNums = append(colNums, productIntSlice(nums))
+					num = 0
+					nums = []int{}
+
+				case 43:
+					colNums = append(colNums, sumIntSlice(nums))
+					num = 0
+					nums = []int{}
+				}
+
 			} else {
+				// Handle calculating number
 				val := rowsNew[y][x]
 				if val != 32 {
-					num = num*10 + int(val)
+					num = num*10 + int(val-48)
 				}
-				fmt.Println(rowsNew[y][x])
 			}
 		}
-		fmt.Println("---")
 	}
+
+	return sumIntSlice(colNums)
 
 }
 
 func main() {
-	filePath := "./inputExample.txt"
-	// filePath := "./input.txt"
+	// filePath := "./inputExample.txt"
+	filePath := "./input.txt"
 
 	data, err := common.ReadInput(filePath)
 	if err != nil {
@@ -185,6 +217,7 @@ func main() {
 	res := sumIntSlice(colValues)
 	fmt.Println(res)
 
-	calculateReverse(data)
+	res2 := calculateReverse(data)
+	fmt.Println(res2)
 
 }
