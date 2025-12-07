@@ -11,14 +11,14 @@ import (
 	"strings"
 )
 
-type IdRange struct {
+type IdInterval struct {
 	Start int
 	End   int
 }
 
-func getIngredientsRange(data []byte) ([]IdRange, []int, error) {
+func getIdIntervals(data []byte) ([]IdInterval, []int, error) {
 
-	var idRanges []IdRange
+	var idRanges []IdInterval
 	var ingredients []int
 	d := common.TrimNewLineSuffix(data)
 	byteArrs := bytes.SplitSeq(d, []byte{10})
@@ -34,7 +34,7 @@ func getIngredientsRange(data []byte) ([]IdRange, []int, error) {
 			return idRanges, ingredients, err
 		}
 
-		idRanges = append(idRanges, IdRange{
+		idRanges = append(idRanges, IdInterval{
 			Start: start,
 			End:   end,
 		})
@@ -98,6 +98,7 @@ func getIngredients(data []byte) (map[int]bool, []int, error) {
 }
 
 func countFreshIngredients(freshIngredients map[int]bool, ingredients []int) int {
+	// Not used
 	var count int
 
 	for _, ing := range ingredients {
@@ -110,39 +111,75 @@ func countFreshIngredients(freshIngredients map[int]bool, ingredients []int) int
 
 }
 
-func countFreshIngredientsRange(idRanges []IdRange, ingredients []int) int {
+func countFreshIngredientsRange(idIntervals []IdInterval, ingredients []int) int {
 	var count int
 
 	// Sort both slices to ensure in-order
-	slices.SortFunc(idRanges, func(a, b IdRange) int {
+	slices.SortFunc(idIntervals, func(a, b IdInterval) int {
 		return cmp.Compare(a.Start, b.Start)
 	})
 	slices.Sort(ingredients)
 
 	// two pointer
-	r := 0
-	i := 0
+	i := 0 // idInterval
+	j := 0 // ingredients
 
-	for r < len(idRanges) && i < len(ingredients) {
-		idRange := idRanges[r]
+	for i < len(idIntervals) && j < len(ingredients) {
+		interval := idIntervals[i]
 
-		if idRange.Start <= ingredients[i] && ingredients[i] <= idRange.End {
+		if interval.Start <= ingredients[j] && ingredients[j] <= interval.End {
 			count++
-			i++
-		} else if ingredients[i] < idRange.Start {
-			i++
+			j++
+		} else if ingredients[j] < interval.Start {
+			j++
 		} else {
-			r++
+			i++
 		}
-
 	}
 
 	return count
 
 }
 
+func calculatePossibleFreshIngredients(idIntervals []IdInterval) int {
+
+	// Requires non-overlapping intervals
+	var count int
+	for _, interval := range idIntervals {
+		count += (interval.End - interval.Start + 1)
+	}
+
+	return count
+
+}
+
+func mergeIntervals(idIntervals []IdInterval) []IdInterval {
+
+	slices.SortFunc(idIntervals, func(a, b IdInterval) int {
+		return cmp.Compare(a.Start, b.Start)
+	})
+
+	mergedIntervals := []IdInterval{idIntervals[0]}
+	i := 1
+	for i < len(idIntervals) {
+
+		prev := &mergedIntervals[len(mergedIntervals)-1]
+		curr := idIntervals[i]
+
+		if prev.Start <= curr.Start && curr.Start <= prev.End {
+			prev.End = max(prev.End, curr.End)
+		} else {
+			mergedIntervals = append(mergedIntervals, curr)
+		}
+
+		i++
+	}
+
+	return mergedIntervals
+
+}
+
 func main() {
-	// filePath := "inputExample.txt"
 	filePath := "input.txt"
 
 	data, err := common.ReadInput(filePath)
@@ -150,15 +187,16 @@ func main() {
 		log.Fatal(err)
 	}
 
-	idRanges, ingredients, err := getIngredientsRange(data)
+	idRanges, ingredients, err := getIdIntervals(data)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// fmt.Println(idRanges)
-	// fmt.Println(ingredients)
-
-	res := countFreshIngredientsRange(idRanges, ingredients)
+	mergedIntervals := mergeIntervals(idRanges)
+	res := countFreshIngredientsRange(mergedIntervals, ingredients)
 	fmt.Println(res)
+
+	res2 := calculatePossibleFreshIngredients(mergedIntervals)
+	fmt.Println(res2)
 
 }
