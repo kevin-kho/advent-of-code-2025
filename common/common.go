@@ -27,3 +27,10 @@ func IntPow(x int, pow int) int {
 	return int(math.Pow(float64(x), float64(pow)))
 
 }
+
+func IntAbs(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
+}
