@@ -14,7 +14,7 @@ type Machine struct {
 	DesiredBulbState    map[int]bool
 	CurrentBulbState    map[int]bool
 	Buttons             []Button
-	DesiredJoltageStage map[int]int
+	DesiredJoltageState map[int]int
 	CurrentJoltageState map[int]int
 }
 
@@ -22,7 +22,7 @@ func toggleBulbs(currentState map[int]bool, b Button) map[int]bool {
 
 	m := maps.Clone(currentState)
 
-	for _, s := range b.Bulbs {
+	for _, s := range b.Indexes {
 		m[s] = !m[s]
 	}
 
@@ -30,8 +30,17 @@ func toggleBulbs(currentState map[int]bool, b Button) map[int]bool {
 
 }
 
+func incrementJoltage(currentState map[int]int, b Button) map[int]int {
+	m := maps.Clone(currentState)
+	for _, s := range b.Indexes {
+		m[s]++
+	}
+
+	return m
+}
+
 type Button struct {
-	Bulbs []int // bulbs to toggle
+	Indexes []int // bulbs/levers to toggle
 }
 
 func getBulbDesiredState(data []byte) map[int]bool {
@@ -91,7 +100,7 @@ func getButtons(data [][]byte) ([]Button, error) {
 		}
 
 		buttons = append(buttons, Button{
-			Bulbs: bulbs,
+			Indexes: bulbs,
 		})
 
 	}
@@ -142,7 +151,7 @@ func createMachine(data []byte) (*Machine, error) {
 		DesiredBulbState:    desiredBulbState,
 		CurrentBulbState:    currentBulbState,
 		Buttons:             buttons,
-		DesiredJoltageStage: desiredJoltageState,
+		DesiredJoltageState: desiredJoltageState,
 		CurrentJoltageState: currentJoltageState,
 	}
 
@@ -185,6 +194,45 @@ func solveMachineBulb(m Machine) int {
 
 }
 
+func currStateExceedsDesired(currState, desiredState map[int]int) bool {
+	for k := range currState {
+		if currState[k] > desiredState[k] {
+			return true
+		}
+	}
+	return false
+}
+
+func solveMachineJoltage(m Machine) int {
+	res := math.MaxInt
+
+	var recurse func(currState map[int]int, presses int, buttons []Button)
+	recurse = func(currState map[int]int, presses int, buttons []Button) {
+		if maps.Equal(currState, m.DesiredJoltageState) {
+			res = min(res, presses)
+			return
+		}
+
+		if currStateExceedsDesired(currState, m.DesiredJoltageState) {
+			return
+		}
+
+		if len(buttons) == 0 {
+			return
+		}
+
+		// press
+		recurse(incrementJoltage(currState, buttons[0]), presses+1, buttons)
+
+		// don't press and go to next button
+		recurse(currState, presses, buttons[1:])
+
+	}
+	recurse(m.CurrentJoltageState, 0, m.Buttons)
+
+	return res
+}
+
 func solvePartOne(filePath string) (int, error) {
 	var sum int
 
@@ -205,6 +253,29 @@ func solvePartOne(filePath string) (int, error) {
 
 }
 
+func solvePartTwo(filePath string) (int, error) {
+	var sum int
+
+	data, err := common.ReadInput(filePath)
+	if err != nil {
+		return sum, err
+	}
+	data = common.TrimNewLineSuffix(data)
+	machines, err := parseData(data)
+	if err != nil {
+		return sum, err
+	}
+
+	for _, m := range machines {
+		c := solveMachineJoltage(m)
+		fmt.Println(c)
+		// sum += solveMachineJoltage(m)
+		sum += c
+	}
+
+	return sum, nil
+}
+
 func main() {
 
 	resExample, err := solvePartOne("./inputExample.txt")
@@ -219,6 +290,13 @@ func main() {
 		log.Printf("solvePartOne error: %v\n", err)
 	} else {
 		fmt.Println(res)
+	}
+
+	resExampleTwo, err := solvePartTwo("./inputExample.txt")
+	if err != nil {
+		log.Printf("example error part two: %v\n", err)
+	} else {
+		fmt.Println(resExampleTwo)
 	}
 
 }
