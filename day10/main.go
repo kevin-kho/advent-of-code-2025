@@ -11,13 +11,13 @@ import (
 )
 
 type Machine struct {
-	DesiredState map[int]bool
-	CurrentState map[int]bool
-	Buttons      []Button
-	Joltage      []int
+	DesiredBulbState map[int]bool
+	CurrentBulbState map[int]bool
+	Buttons          []Button
+	Joltage          []int
 }
 
-func toggle(currentState map[int]bool, b Button) map[int]bool {
+func toggleBulbs(currentState map[int]bool, b Button) map[int]bool {
 
 	m := maps.Clone(currentState)
 
@@ -134,28 +134,28 @@ func createMachine(data []byte) (*Machine, error) {
 	}
 
 	m := &Machine{
-		DesiredState: desiredState,
-		CurrentState: currentState,
-		Buttons:      buttons,
-		Joltage:      joltages,
+		DesiredBulbState: desiredState,
+		CurrentBulbState: currentState,
+		Buttons:          buttons,
+		Joltage:          joltages,
 	}
 
 	return m, nil
 
 }
 
-func solveMachine(m Machine) int {
+func solveMachineBulb(m Machine) int {
 	// TODO: make more efficient
 	res := math.MaxInt
 	var recurse func(currState map[int]bool, presses int, buttons []Button)
 	recurse = func(currState map[int]bool, presses int, buttons []Button) {
 
-		if maps.Equal(currState, m.DesiredState) {
+		if maps.Equal(currState, m.DesiredBulbState) {
 			res = min(res, presses)
 			return
 		}
 
-		if presses > len(m.DesiredState) {
+		if presses > len(m.DesiredBulbState) {
 			return
 		}
 
@@ -166,14 +166,14 @@ func solveMachine(m Machine) int {
 		// press
 		b := buttons[0]
 		newButtons := append(buttons[1:], buttons[0])
-		newState := toggle(currState, b)
+		newState := toggleBulbs(currState, b)
 		recurse(newState, presses+1, newButtons)
 
 		// no press
 		recurse(currState, presses, buttons[1:])
 
 	}
-	recurse(m.CurrentState, 0, m.Buttons)
+	recurse(m.CurrentBulbState, 0, m.Buttons)
 
 	return res
 
@@ -192,7 +192,7 @@ func solvePartOne(filePath string) (int, error) {
 		return sum, err
 	}
 	for _, m := range machines {
-		sum += solveMachine(m)
+		sum += solveMachineBulb(m)
 	}
 
 	return sum, nil
