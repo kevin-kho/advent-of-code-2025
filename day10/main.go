@@ -11,10 +11,11 @@ import (
 )
 
 type Machine struct {
-	DesiredBulbState map[int]bool
-	CurrentBulbState map[int]bool
-	Buttons          []Button
-	Joltage          []int
+	DesiredBulbState    map[int]bool
+	CurrentBulbState    map[int]bool
+	Buttons             []Button
+	DesiredJoltageStage map[int]int
+	CurrentJoltageState map[int]int
 }
 
 func toggleBulbs(currentState map[int]bool, b Button) map[int]bool {
@@ -51,20 +52,20 @@ func getBulbDesiredState(data []byte) map[int]bool {
 
 }
 
-func getJoltages(data []byte) ([]int, error) {
+func getDesiredJoltages(data []byte) (map[int]int, error) {
 
-	var res []int
+	res := map[int]int{}
 
 	// Trim braces
 	d := bytes.TrimPrefix(data, []byte{123})
 	d = bytes.TrimSuffix(d, []byte{125})
 
-	for num := range bytes.SplitSeq(d, []byte{44}) {
+	for i, num := range bytes.Split(d, []byte{44}) {
 		n, err := strconv.Atoi(string(num))
 		if err != nil {
 			return res, err
 		}
-		res = append(res, n)
+		res[i] = n
 	}
 
 	return res, nil
@@ -117,15 +118,19 @@ func parseData(data []byte) ([]Machine, error) {
 
 func createMachine(data []byte) (*Machine, error) {
 	items := bytes.Split(data, []byte{32})
-	desiredState := getBulbDesiredState(items[0])
-	currentState := map[int]bool{}
-	for k := range desiredState {
-		currentState[k] = false
+	desiredBulbState := getBulbDesiredState(items[0])
+	currentBulbState := map[int]bool{}
+	for k := range desiredBulbState {
+		currentBulbState[k] = false
 	}
 
-	joltages, err := getJoltages(items[len(items)-1])
+	desiredJoltageState, err := getDesiredJoltages(items[len(items)-1])
 	if err != nil {
 		return nil, err
+	}
+	currentJoltageState := map[int]int{}
+	for k := range desiredJoltageState {
+		currentJoltageState[k] = 0
 	}
 
 	buttons, err := getButtons(items[1 : len(items)-1])
@@ -134,10 +139,11 @@ func createMachine(data []byte) (*Machine, error) {
 	}
 
 	m := &Machine{
-		DesiredBulbState: desiredState,
-		CurrentBulbState: currentState,
-		Buttons:          buttons,
-		Joltage:          joltages,
+		DesiredBulbState:    desiredBulbState,
+		CurrentBulbState:    currentBulbState,
+		Buttons:             buttons,
+		DesiredJoltageStage: desiredJoltageState,
+		CurrentJoltageState: currentJoltageState,
 	}
 
 	return m, nil
