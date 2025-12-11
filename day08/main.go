@@ -32,6 +32,11 @@ type edge struct {
 	distance float64
 }
 
+type input struct {
+	filePath    string
+	connections int
+}
+
 func calculateDistance(a, b pos) float64 {
 
 	xDistance := common.IntPow(a[0]-b[0], 2)
@@ -174,31 +179,55 @@ func productTopN(sizes []int, n int) (int, error) {
 	return product, nil
 }
 
-func main() {
-
-	// filePath := "./inputExample.txt"
-	filePath := "./input.txt"
-	data, err := common.ReadInput(filePath)
-
+func solvePartOne(in input) (int, error) {
+	data, err := common.ReadInput(in.filePath)
 	if err != nil {
-		log.Fatal(err)
+		return 0, err
 	}
-
 	data = common.TrimNewLineSuffix(data)
-
-	// Part 1
 	positions, err := createPositions(data)
 	if err != nil {
-		log.Fatal(err)
+		return 0, err
 	}
-	seenMap := createSeenMap(positions)
+
 	edges := createEdges(positions)
-	connectBoxes(1000, edges, seenMap)
-	sizes := getCircuitSizes(seenMap)
+	seen := createSeenMap(positions)
+
+	connectBoxes(in.connections, edges, seen)
+	sizes := getCircuitSizes(seen)
 	prod, err := productTopN(sizes, 3)
+	if err != nil {
+		return 0, err
+	}
+
+	return prod, nil
+
+}
+
+func main() {
+
+	exampleInput := input{
+		filePath:    "./inputExample.txt",
+		connections: 10,
+	}
+
+	partOneInput := input{
+		filePath:    "./input.txt",
+		connections: 1000,
+	}
+
+	exampleProd, err := solvePartOne(exampleInput)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(prod)
+
+	fmt.Println(exampleProd)
+
+	partOneProd, err := solvePartOne(partOneInput)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(partOneProd)
 
 }
