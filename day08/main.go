@@ -4,6 +4,7 @@ import (
 	"aoc-2025/common"
 	"bytes"
 	"cmp"
+	"container/heap"
 	"errors"
 	"fmt"
 	"log"
@@ -235,7 +236,6 @@ func solvePartTwo(in input) (int, error) {
 	}
 
 	edges := createEdges(positions)
-	// seen := createSeenMap(positions)
 
 	// Build Adj matrix for Prim's
 	adj := map[pos][]edge{} //key: src value: possible dsts
@@ -243,14 +243,40 @@ func solvePartTwo(in input) (int, error) {
 		adj[e.src] = append(adj[e.src], e)
 	}
 
-	var start pos
-	for k := range adj {
-		start = k
-		break
+	// Pick any starting position
+	start := positions[0]
+
+	h := &edgeHeap{edge{
+		src:      pos{},
+		dst:      start,
+		distance: 0,
+	}}
+	heap.Init(h)
+
+	visited := map[pos]bool{}
+	var order []edge
+
+	// Prim's algorithm
+	// Keep track of collected edges
+	for h.Len() > 0 {
+		e := heap.Pop(h).(edge)
+		if visited[e.dst] {
+			continue
+		}
+
+		visited[e.dst] = true
+		order = append(order, e)
+
+		for _, n := range adj[e.dst] {
+			heap.Push(h, n)
+		}
+
 	}
 
-	// TODO: update
-	return 1, nil
+	// Product of last edge's x-coords
+	lastConnection := order[len(order)-1]
+	return lastConnection.src[0] * lastConnection.dst[0], nil
+
 }
 
 func main() {
@@ -279,6 +305,16 @@ func main() {
 
 	fmt.Println(partOneProd)
 
-	solvePartTwo(exampleInput)
+	exampleLast, err := solvePartTwo(exampleInput)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(exampleLast)
+
+	partTwoLast, err := solvePartTwo(partOneInput)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(partTwoLast)
 
 }
