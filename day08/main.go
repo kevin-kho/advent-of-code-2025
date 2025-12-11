@@ -4,6 +4,7 @@ import (
 	"aoc-2025/common"
 	"bytes"
 	"cmp"
+	"errors"
 	"fmt"
 	"log"
 	"math"
@@ -121,18 +122,62 @@ func connectBoxes(n int, edges []edge, seen map[pos]map[pos]bool) {
 		i++
 	}
 
-	// fmt.Println(connections)
-	// fmt.Println(seen)
+}
 
-	for k, v := range seen {
-		fmt.Println(k, len(v))
+func getCircuitSizes(seen map[pos]map[pos]bool) []int {
+	visited := make(map[pos]bool)
+	var res []int
+
+	var dfs func(p pos) int
+	dfs = func(p pos) int {
+		if visited[p] {
+			return 0
+		}
+
+		visited[p] = true
+		var sum int
+		for child := range seen[p] {
+			sum += dfs(child)
+		}
+
+		return 1 + sum
+
 	}
 
+	for node := range seen {
+		size := dfs(node)
+		res = append(res, size)
+	}
+
+	return res
+
+}
+
+func productTopN(sizes []int, n int) (int, error) {
+	var product int
+	if n < 0 {
+		return product, errors.New("n must be positive")
+	}
+
+	if n > len(sizes) {
+		return product, errors.New("n is greater than length of sizes")
+	}
+
+	sizesClone := slices.Clone(sizes)
+	slices.Sort(sizesClone)
+
+	product = 1
+	for i := len(sizesClone) - 1; i >= len(sizesClone)-n; i-- {
+		product *= sizesClone[i]
+	}
+
+	return product, nil
 }
 
 func main() {
 
-	filePath := "./inputExample.txt"
+	// filePath := "./inputExample.txt"
+	filePath := "./input.txt"
 	data, err := common.ReadInput(filePath)
 
 	if err != nil {
@@ -141,16 +186,19 @@ func main() {
 
 	data = common.TrimNewLineSuffix(data)
 
+	// Part 1
 	positions, err := createPositions(data)
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	seenMap := createSeenMap(positions)
-	fmt.Println(seenMap)
-
 	edges := createEdges(positions)
-
-	connectBoxes(10, edges, seenMap)
+	connectBoxes(1000, edges, seenMap)
+	sizes := getCircuitSizes(seenMap)
+	prod, err := productTopN(sizes, 3)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(prod)
 
 }
