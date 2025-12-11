@@ -5,6 +5,8 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"maps"
+	"math"
 	"strconv"
 )
 
@@ -15,10 +17,16 @@ type Machine struct {
 	Joltage      []int
 }
 
-func (m *Machine) Toggle(s Button) {
-	for _, b := range s.Bulbs {
-		m.CurrentState[b] = !m.CurrentState[b]
+func toggle(currentState map[int]bool, b Button) map[int]bool {
+
+	m := maps.Clone(currentState)
+
+	for _, s := range b.Bulbs {
+		m[s] = !m[s]
 	}
+
+	return m
+
 }
 
 type Button struct {
@@ -136,18 +144,75 @@ func createMachine(data []byte) (*Machine, error) {
 
 }
 
-func main() {
-	filePath := "./inputExample.txt"
+func solveMachine(m Machine) int {
+	// TODO: make more efficient
+	res := math.MaxInt
+	var recurse func(currState map[int]bool, presses int, buttons []Button)
+	recurse = func(currState map[int]bool, presses int, buttons []Button) {
+
+		if maps.Equal(currState, m.DesiredState) {
+			res = min(res, presses)
+			return
+		}
+
+		if presses > len(m.DesiredState) {
+			return
+		}
+
+		if len(buttons) == 0 {
+			return
+		}
+
+		// press
+		b := buttons[0]
+		newButtons := append(buttons[1:], buttons[0])
+		newState := toggle(currState, b)
+		recurse(newState, presses+1, newButtons)
+
+		// no press
+		recurse(currState, presses, buttons[1:])
+
+	}
+	recurse(m.CurrentState, 0, m.Buttons)
+
+	return res
+
+}
+
+func solvePartOne(filePath string) (int, error) {
+	var sum int
+
 	data, err := common.ReadInput(filePath)
 	if err != nil {
-		log.Fatal(err)
+		return sum, err
 	}
 	data = common.TrimNewLineSuffix(data)
-
 	machines, err := parseData(data)
 	if err != nil {
-		log.Fatal(err)
+		return sum, err
 	}
-	fmt.Println(machines)
+	for _, m := range machines {
+		sum += solveMachine(m)
+	}
+
+	return sum, nil
+
+}
+
+func main() {
+
+	resExample, err := solvePartOne("./inputExample.txt")
+	if err != nil {
+		log.Printf("example error: %v\n", err)
+	} else {
+		fmt.Println(resExample)
+	}
+
+	res, err := solvePartOne("./input.txt")
+	if err != nil {
+		log.Printf("solvePartOne error: %v\n", err)
+	} else {
+		fmt.Println(res)
+	}
 
 }
