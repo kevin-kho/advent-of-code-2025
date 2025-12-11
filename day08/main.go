@@ -32,6 +32,24 @@ type edge struct {
 	distance float64
 }
 
+type edgeHeap []edge
+
+func (e edgeHeap) Len() int           { return len(e) }
+func (e edgeHeap) Less(i, j int) bool { return e[i].distance < e[j].distance }
+func (e edgeHeap) Swap(i, j int)      { e[i], e[j] = e[j], e[i] }
+
+func (e *edgeHeap) Push(x any) {
+	*e = append(*e, x.(edge))
+}
+
+func (e *edgeHeap) Pop() any {
+	old := *e
+	n := len(old)
+	x := old[n-1]
+	*e = old[0 : n-1]
+	return x
+}
+
 type input struct {
 	filePath    string
 	connections int
@@ -204,6 +222,37 @@ func solvePartOne(in input) (int, error) {
 
 }
 
+func solvePartTwo(in input) (int, error) {
+	data, err := common.ReadInput(in.filePath)
+	if err != nil {
+		return 0, err
+	}
+
+	data = common.TrimNewLineSuffix(data)
+	positions, err := createPositions(data)
+	if err != nil {
+		return 0, err
+	}
+
+	edges := createEdges(positions)
+	// seen := createSeenMap(positions)
+
+	// Build Adj matrix for Prim's
+	adj := map[pos][]edge{} //key: src value: possible dsts
+	for _, e := range edges {
+		adj[e.src] = append(adj[e.src], e)
+	}
+
+	var start pos
+	for k := range adj {
+		start = k
+		break
+	}
+
+	// TODO: update
+	return 1, nil
+}
+
 func main() {
 
 	exampleInput := input{
@@ -229,5 +278,7 @@ func main() {
 	}
 
 	fmt.Println(partOneProd)
+
+	solvePartTwo(exampleInput)
 
 }
