@@ -29,7 +29,7 @@ func createAdjMatrix(data []byte) map[string][]string {
 
 }
 
-func countPaths(adj map[string][]string) int {
+func countPaths(adj map[string][]string, startNode string) int {
 
 	var traverse func(node string) int
 	solved := map[string]int{}
@@ -54,11 +54,11 @@ func countPaths(adj map[string][]string) int {
 
 	}
 
-	return traverse("you")
+	return traverse(startNode)
 
 }
 
-func countPathsWithFftDac(adj map[string][]string) int {
+func countPathsWithFftDac(adj map[string][]string, startNode string) int {
 
 	solved := map[string]int{}
 	var traverse func(node string, visited map[string]bool) int
@@ -89,11 +89,11 @@ func countPathsWithFftDac(adj map[string][]string) int {
 
 	}
 
-	return traverse("svr", map[string]bool{})
+	return traverse(startNode, map[string]bool{})
 
 }
 
-func solvePartOne(in Input) (int, error) {
+func solvePartOne(in Input, startNode string) (int, error) {
 
 	data, err := common.ReadInput(in.FilePath)
 	if err != nil {
@@ -103,13 +103,13 @@ func solvePartOne(in Input) (int, error) {
 	data = common.TrimNewLineSuffix(data)
 
 	adj := createAdjMatrix(data)
-	res := countPaths(adj)
+	res := countPaths(adj, startNode)
 
 	return res, nil
 
 }
 
-func solvePartTwo(in Input) (int, error) {
+func solvePartTwo(in Input, startNode string) (int, error) {
 	data, err := common.ReadInput(in.FilePath)
 	if err != nil {
 		return 0, err
@@ -118,28 +118,28 @@ func solvePartTwo(in Input) (int, error) {
 	data = common.TrimNewLineSuffix(data)
 
 	adj := createAdjMatrix(data)
-	res := countPathsWithFftDac(adj)
+	res := countPathsWithFftDac(adj, startNode)
 
 	return res, nil
 }
 
 func main() {
 	exampleInputPartOne := Input{FilePath: "./inputExamplePartOne.txt"}
-	resExamplePartOne, err := solvePartOne(exampleInputPartOne)
+	resExamplePartOne, err := solvePartOne(exampleInputPartOne, "you")
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println(resExamplePartOne)
 
 	input := Input{FilePath: "./input.txt"}
-	res, err := solvePartOne(input)
+	res, err := solvePartOne(input, "you")
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println(res)
 
 	exampleInputPartTwo := Input{FilePath: "./InputExamplePartTwo.txt"}
-	resExamplePartTwo, err := solvePartTwo(exampleInputPartTwo)
+	resExamplePartTwo, err := solvePartTwo(exampleInputPartTwo, "svr")
 	if err != nil {
 		log.Fatal(err)
 	}
