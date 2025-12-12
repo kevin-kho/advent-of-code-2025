@@ -29,13 +29,13 @@ func createAdjMatrix(data []byte) map[string][]string {
 
 }
 
-func countPaths(adj map[string][]string, startNode string) int {
+func countPaths(adj map[string][]string, startNode string, endNode string) int {
 
 	var traverse func(node string) int
 	solved := map[string]int{}
 	traverse = func(node string) int {
 
-		if node == "out" {
+		if node == endNode {
 			return 1
 		}
 
@@ -93,7 +93,7 @@ func countPathsWithFftDac(adj map[string][]string, startNode string) int {
 
 }
 
-func solvePartOne(in Input, startNode string) (int, error) {
+func solvePartOne(in Input, startNode string, endNode string) (int, error) {
 
 	data, err := common.ReadInput(in.FilePath)
 	if err != nil {
@@ -103,7 +103,7 @@ func solvePartOne(in Input, startNode string) (int, error) {
 	data = common.TrimNewLineSuffix(data)
 
 	adj := createAdjMatrix(data)
-	res := countPaths(adj, startNode)
+	res := countPaths(adj, startNode, endNode)
 
 	return res, nil
 
@@ -125,14 +125,14 @@ func solvePartTwo(in Input, startNode string) (int, error) {
 
 func main() {
 	exampleInputPartOne := Input{FilePath: "./inputExamplePartOne.txt"}
-	resExamplePartOne, err := solvePartOne(exampleInputPartOne, "you")
+	resExamplePartOne, err := solvePartOne(exampleInputPartOne, "you", "out")
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println(resExamplePartOne)
 
 	input := Input{FilePath: "./input.txt"}
-	res, err := solvePartOne(input, "you")
+	res, err := solvePartOne(input, "you", "out")
 	if err != nil {
 		log.Fatal(err)
 	}
