@@ -123,6 +123,29 @@ func solvePartTwo(in Input, startNode string) (int, error) {
 	return res, nil
 }
 
+func solvePartTwoAttempt(in Input) (int, error) {
+
+	data, err := common.ReadInput(in.FilePath)
+	if err != nil {
+		return 0, err
+	}
+
+	data = common.TrimNewLineSuffix(data)
+
+	adj := createAdjMatrix(data)
+
+	var paths int
+
+	// svr -> fft -> dac -> out
+	paths += countPaths(adj, "svr", "fft") * countPaths(adj, "fft", "dac") * countPaths(adj, "dac", "out")
+
+	// svr -> dac -> fft -> out
+	paths += countPaths(adj, "svr", "dac") * countPaths(adj, "dac", "fft") * countPaths(adj, "fft", "out")
+
+	return paths, nil
+
+}
+
 func main() {
 	exampleInputPartOne := Input{FilePath: "./inputExamplePartOne.txt"}
 	resExamplePartOne, err := solvePartOne(exampleInputPartOne, "you", "out")
@@ -144,6 +167,12 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Println(resExamplePartTwo)
+
+	resExamplePartTwoAttempt, err := solvePartTwoAttempt(input)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(resExamplePartTwoAttempt)
 
 	// resPartTwo, err := solvePartTwo(input)
 	// if err != nil {
