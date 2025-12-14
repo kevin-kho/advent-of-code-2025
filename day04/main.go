@@ -8,8 +8,7 @@ import (
 )
 
 func buildGrid(data []byte) [][]byte {
-	trimWhiteSpace, _ := bytes.CutSuffix(data, []byte{10})
-	return bytes.Split(trimWhiteSpace, []byte{10})
+	return bytes.Split(data, []byte{10})
 }
 
 func isValidRoll(x, y int, grid [][]byte) bool {
@@ -91,6 +90,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	data = common.TrimNewLineSuffix(data)
 
 	grid := buildGrid(data)
 
