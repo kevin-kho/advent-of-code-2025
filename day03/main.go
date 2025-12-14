@@ -17,9 +17,11 @@ func createBanks(data []byte) [][]int {
 			cell := int(b - 48) // Given that every value is the unicode repr of 1-9
 			bank = append(bank, cell)
 		}
+
 		if len(bank) > 0 {
 			banks = append(banks, bank)
 		}
+
 	}
 
 	return banks
@@ -126,6 +128,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	data = common.TrimNewLineSuffix(data)
 
 	banks := createBanks(data)
 	totalPower := findTotalPower(banks, pickTwo)
