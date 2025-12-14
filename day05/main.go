@@ -16,22 +16,28 @@ type IdInterval struct {
 	End   int
 }
 
-func getIdIntervals(data []byte) ([]IdInterval, []int, error) {
+func getIdIntervals(data []byte) ([]IdInterval, []int) {
 
 	var idRanges []IdInterval
 	var ingredients []int
-	d := common.TrimNewLineSuffix(data)
-	byteArrs := bytes.SplitSeq(d, []byte{10})
+	byteArrs := bytes.SplitSeq(data, []byte{10})
 
 	for byteArr := range byteArrs {
 		if len(byteArr) == 0 {
 			break
 		}
-		idRange := strings.Split(string(byteArr), "-")
-		start, err := strconv.Atoi(idRange[0])
-		end, err := strconv.Atoi(idRange[1])
-		if err != nil {
-			return idRanges, ingredients, err
+
+		idRange := bytes.Split(byteArr, []byte{45})
+
+		var start int
+		var end int
+
+		for _, digit := range idRange[0] {
+			start = start*10 + int(digit-48)
+		}
+
+		for _, digit := range idRange[1] {
+			end = end*10 + int(digit-48)
 		}
 
 		idRanges = append(idRanges, IdInterval{
@@ -45,14 +51,16 @@ func getIdIntervals(data []byte) ([]IdInterval, []int, error) {
 		if len(id) == 0 {
 			continue
 		}
-		idInt, err := strconv.Atoi(string(id))
-		if err != nil {
-			return idRanges, ingredients, err
+		var idInt int
+		for _, digit := range id {
+			idInt = idInt*10 + int(digit-48)
 		}
+
 		ingredients = append(ingredients, idInt)
+
 	}
 
-	return idRanges, ingredients, nil
+	return idRanges, ingredients
 
 }
 
@@ -187,10 +195,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	idRanges, ingredients, err := getIdIntervals(data)
-	if err != nil {
-		log.Fatal(err)
-	}
+	data = common.TrimNewLineSuffix(data)
+
+	idRanges, ingredients := getIdIntervals(data)
 
 	mergedIntervals := mergeIntervals(idRanges)
 	res := countFreshIngredientsRange(mergedIntervals, ingredients)
