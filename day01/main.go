@@ -1,11 +1,10 @@
 package main
 
 import (
+	"aoc-2025/common"
+	"bytes"
 	"fmt"
 	"log"
-	"os"
-	"strconv"
-	"strings"
 )
 
 type Command struct {
@@ -17,51 +16,35 @@ func (c Command) getValue() int {
 	return c.Direction * c.Quantity
 }
 
-func readInput(filePath string) ([]string, error) {
+func constructCommands(data []byte) []Command {
+	// L = 76
+	// R = 82
+	var cmds []Command
+	for b := range bytes.SplitSeq(data, []byte{10}) {
+		var d int
+		var num int
+		direction := b[0]
+		quantity := b[1:]
 
-	data, err := os.ReadFile(filePath)
-	if err != nil {
-		return nil, err
-	}
-
-	stringSlice := strings.SplitSeq(string(data), "\n")
-
-	var finalSlice []string
-
-	// remove nil string entries
-	for v := range stringSlice {
-		if v != "" {
-			finalSlice = append(finalSlice, v)
+		if direction == 76 {
+			d = -1
+		} else {
+			d = 1
 		}
+
+		for _, v := range quantity {
+			num = num*10 + int(v-48)
+		}
+
+		cmd := Command{
+			Direction: d,
+			Quantity:  num,
+		}
+		cmds = append(cmds, cmd)
+
 	}
 
-	return finalSlice, nil
-
-}
-
-func constructCommand(cmd string) (Command, error) {
-	var c Command
-	direction := string(cmd[0])
-	quantity := string(cmd[1:])
-
-	var d int
-	if direction == "L" {
-		d = -1
-	} else {
-		d = 1
-	}
-
-	q, err := strconv.Atoi(quantity)
-	if err != nil {
-		return c, err
-	}
-
-	c = Command{
-		Direction: d,
-		Quantity:  q,
-	}
-
-	return c, nil
+	return cmds
 
 }
 
@@ -102,10 +85,7 @@ func solvePasses(cmds []Command) int {
 		// integer division to determine number of times it passes 0
 		pos += v
 		ct := pos / 100
-		if ct < 0 {
-			ct = -ct
-		}
-		count += ct
+		count += common.IntAbs(ct)
 
 		// case: land exactly on zero
 		if pos == 0 {
@@ -128,19 +108,14 @@ func solvePasses(cmds []Command) int {
 
 func main() {
 
-	stringCommands, err := readInput("./input.txt")
+	data, err := common.ReadInput("./input.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var commands []Command
-	for _, sc := range stringCommands {
-		cmd, err := constructCommand(sc)
-		if err != nil {
-			log.Fatal(err)
-		}
-		commands = append(commands, cmd)
-	}
+	data = common.TrimNewLineSuffix(data)
+
+	commands := constructCommands(data)
 	resLanded := solveLanded(commands)
 
 	resPasses := solvePasses(commands)
