@@ -48,7 +48,7 @@ func (r *Range) findInvalidIdsPart2() []int {
 
 }
 
-func buildIntoRanges(byteArr []byte) ([]Range, error) {
+func buildIntoRanges(byteArr []byte) []Range {
 	// 44 = ,
 	// 45 = -
 
@@ -56,13 +56,14 @@ func buildIntoRanges(byteArr []byte) ([]Range, error) {
 	for b := range bytes.SplitSeq(byteArr, []byte{44}) {
 		res := bytes.Split(b, []byte{45})
 
-		s, _ := bytes.CutSuffix(res[0], []byte{10})
-		e, _ := bytes.CutSuffix(res[1], []byte{10})
+		var start int
+		var end int
+		for _, digit := range res[0] {
+			start = start*10 + int(digit-48)
+		}
 
-		start, err := strconv.Atoi(string(s))
-		end, err := strconv.Atoi(string(e))
-		if err != nil {
-			return ranges, err
+		for _, digit := range res[1] {
+			end = end*10 + int(digit-48)
 		}
 
 		r := Range{
@@ -73,7 +74,7 @@ func buildIntoRanges(byteArr []byte) ([]Range, error) {
 
 	}
 
-	return ranges, nil
+	return ranges
 
 }
 
@@ -99,10 +100,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	ranges, err := buildIntoRanges(data)
-	if err != nil {
-		log.Fatal(err)
-	}
+	data = common.TrimNewLineSuffix(data)
+
+	ranges := buildIntoRanges(data)
 
 	res := totalizeInvalidIds(ranges)
 	fmt.Println(res)
