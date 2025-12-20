@@ -1,11 +1,12 @@
 package main
 
 import (
-	"aoc-2025/common"
 	"bytes"
 	"fmt"
 	"log"
 	"strings"
+
+	"github.com/kevin-kho/aoc-utilities/common"
 )
 
 type Input struct {

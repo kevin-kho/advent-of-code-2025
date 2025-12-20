@@ -1,9 +1,10 @@
 package main
 
 import (
-	"aoc-2025/common"
 	"fmt"
 	"log"
+
+	"github.com/kevin-kho/aoc-utilities/common"
 )
 
 func transpose(matrix [][]int) [3][3]int {

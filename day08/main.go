@@ -1,7 +1,6 @@
 package main
 
 import (
-	"aoc-2025/common"
 	"bytes"
 	"cmp"
 	"container/heap"
@@ -11,6 +10,8 @@ import (
 	"math"
 	"slices"
 	"strconv"
+
+	"github.com/kevin-kho/aoc-utilities/common"
 )
 
 type pos [3]int

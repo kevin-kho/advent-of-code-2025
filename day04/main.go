@@ -1,10 +1,11 @@
 package main
 
 import (
-	"aoc-2025/common"
 	"bytes"
 	"fmt"
 	"log"
+
+	"github.com/kevin-kho/aoc-utilities/common"
 )
 
 func buildGrid(data []byte) [][]byte {

@@ -1,13 +1,14 @@
 package main
 
 import (
-	"aoc-2025/common"
 	"bytes"
 	"fmt"
 	"log"
 	"maps"
 	"math"
 	"strconv"
+
+	"github.com/kevin-kho/aoc-utilities/common"
 )
 
 type Machine struct {

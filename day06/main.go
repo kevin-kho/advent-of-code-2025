@@ -1,12 +1,13 @@
 package main
 
 import (
-	"aoc-2025/common"
 	"bytes"
 	"errors"
 	"fmt"
 	"log"
 	"strconv"
+
+	"github.com/kevin-kho/aoc-utilities/common"
 )
 
 func getOperations(data []byte) []byte {

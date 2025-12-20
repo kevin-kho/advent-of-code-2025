@@ -1,7 +1,6 @@
 package main
 
 import (
-	"aoc-2025/common"
 	"bytes"
 	"cmp"
 	"fmt"
@@ -9,6 +8,8 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+
+	"github.com/kevin-kho/aoc-utilities/common"
 )
 
 type IdInterval struct {

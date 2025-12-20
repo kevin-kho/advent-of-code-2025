@@ -1,11 +1,12 @@
 package main
 
 import (
-	"aoc-2025/common"
 	"bytes"
 	"errors"
 	"fmt"
 	"log"
+
+	"github.com/kevin-kho/aoc-utilities/common"
 )
 
 type Pos [2]int
