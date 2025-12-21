@@ -148,7 +148,7 @@ func main() {
 	}
 	fmt.Println(res)
 
-	exampleInputPartTwo := Input{FilePath: "./InputExamplePartTwo.txt"}
+	exampleInputPartTwo := Input{FilePath: "./inputExamplePartTwo.txt"}
 	resExamplePartTwo, err := solvePartTwo(exampleInputPartTwo)
 	if err != nil {
 		log.Fatal(err)
